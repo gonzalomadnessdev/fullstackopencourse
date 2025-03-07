@@ -4,12 +4,14 @@ import personsService from './services/persons'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [filter, setFilter] = useState('')
   const [newName, setNewName] = useState('')
   const [newPhoneNumber, setNewPhoneNumber] = useState('')
+  const [successMessage, setSuccessMessage] = useState(null)
 
   useEffect(() => {
     personsService.getAll().then(persons => {
@@ -19,23 +21,41 @@ const App = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
+
+    let succeed = false
+    let successMessage = ''
+
     const personFoundIdx = persons.findIndex(p => p.name == newName)
     const personFound = persons[personFoundIdx]
+
+    let action
     if (personFound) {
       if(window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)){
         const updatedPerson = {...personFound, number : newPhoneNumber}
-        personsService.update(personFound.id, updatedPerson).then(()=>{
+        action = personsService.update(personFound.id, updatedPerson).then(()=>{
           setPersons(persons.map((p, idx)=> (idx == personFoundIdx) ? {...p, number: newPhoneNumber} : p))
+          succeed = true
+          successMessage = `Updated ${newName}`
         })
       }
-      return;
+    }else{
+      action = personsService.create({ name: newName, number: newPhoneNumber }).then((person) => {
+        console.log(person)
+        setPersons([...persons, person])
+        succeed = true
+        successMessage = `Added ${newName}`
+      })
     }
-    personsService.create({ name: newName, number: newPhoneNumber }).then((person) => {
-      console.log(person)
-      setPersons([...persons, person])
-      setNewName('')
-      setNewPhoneNumber('')
+
+    action.then(()=>{
+      if(succeed){
+        setNewName('')
+        setNewPhoneNumber('')
+        setSuccessMessage(successMessage)
+        setTimeout(()=>{setSuccessMessage(null)}, 5000)
+      }
     })
+
   }
 
   const handleDelete = (id) => {
@@ -57,6 +77,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter handleFilter={handleFilter} value={filter} label={"filter shown with"} />
       <h2>add a new</h2>
+      <Notification message={successMessage}/>
       <PersonForm
         handleSubmit={handleSubmit}
         newName={newName}
