@@ -12,6 +12,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newPhoneNumber, setNewPhoneNumber] = useState('')
   const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     personsService.getAll().then(persons => {
@@ -36,6 +37,9 @@ const App = () => {
           setPersons(persons.map((p, idx)=> (idx == personFoundIdx) ? {...p, number: newPhoneNumber} : p))
           succeed = true
           successMessage = `Updated ${newName}`
+        }).catch(()=>{
+          setErrorMessage(`Information of ${newName} has already been removed from server`)
+          setTimeout(()=>{setErrorMessage(null)}, 5000)
         })
       }
     }else{
@@ -77,7 +81,8 @@ const App = () => {
       <h2>Phonebook</h2>
       <Filter handleFilter={handleFilter} value={filter} label={"filter shown with"} />
       <h2>add a new</h2>
-      <Notification message={successMessage}/>
+      <Notification message={successMessage} type={'success'}/>
+      <Notification message={errorMessage} type={'error'}/>
       <PersonForm
         handleSubmit={handleSubmit}
         newName={newName}
