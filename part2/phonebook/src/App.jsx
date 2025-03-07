@@ -1,20 +1,27 @@
 import { useState } from 'react'
+import { useEffect } from 'react'
+import axios from 'axios'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 
 const App = () => {
-  const personsData = [
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ]
-
-  const [persons, setPersons] = useState(personsData)
-  const [fileredPersons, setFilteredPersons] = useState(personsData)
+  const [persons, setPersons] = useState([])
+  const [fileredPersons, setFilteredPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newPhoneNumber, setNewPhoneNumber] = useState('')
+
+  useEffect(()=>{
+    axios.get('http://localhost:3001/persons').then((res)=>{
+      console.log(res)
+      if(res.status === 200){
+        const persons = res.data
+        setPersons(persons)
+        setFilteredPersons(persons)
+      }
+    })
+
+  }, [])
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -25,6 +32,7 @@ const App = () => {
     const personObj = { id: persons.length + 1, name: newName, number: newPhoneNumber }
     setPersons([...persons, personObj])
     setNewName('')
+    setNewPhoneNumber('')
   }
 
   return (
