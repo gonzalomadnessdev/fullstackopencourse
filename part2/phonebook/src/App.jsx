@@ -31,6 +31,15 @@ const App = () => {
     })
   }
 
+  const handleDelete = (id) => {
+    const person = persons.find(p => p.id == id)
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      personsService.remove(id).then(()=>{
+        setPersons(persons.filter(p => p.id != id))
+      })
+    }
+  }
+
   const handleFilter = (event) => {
     console.dir(event.target.value)
     setFilter(event.target.value)
@@ -49,7 +58,7 @@ const App = () => {
         setNewPhoneNumber={setNewPhoneNumber}
       />
       <h2>Numbers</h2>
-      <Persons persons={(filter.length === '') ? persons : persons.filter(p => p.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase()))} />
+      <Persons handleDelete={handleDelete} persons={(filter.length === '') ? persons : persons.filter(p => p.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase()))} />
     </div>
   )
 }
