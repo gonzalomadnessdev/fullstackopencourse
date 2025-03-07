@@ -19,8 +19,15 @@ const App = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    if (persons.some(p => p.name == newName)) {
-      alert(`${newName} is already added to the phonebook`)
+    const personFoundIdx = persons.findIndex(p => p.name == newName)
+    const personFound = persons[personFoundIdx]
+    if (personFound) {
+      if(window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)){
+        const updatedPerson = {...personFound, number : newPhoneNumber}
+        personsService.update(personFound.id, updatedPerson).then(()=>{
+          setPersons(persons.map((p, idx)=> (idx == personFoundIdx) ? {...p, number: newPhoneNumber} : p))
+        })
+      }
       return;
     }
     personsService.create({ name: newName, number: newPhoneNumber }).then((person) => {
