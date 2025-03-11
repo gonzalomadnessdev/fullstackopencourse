@@ -37,8 +37,8 @@ const App = () => {
           setPersons(persons.map((p, idx)=> (idx == personFoundIdx) ? {...p, number: newPhoneNumber} : p))
           succeed = true
           successMessage = `Updated ${newName}`
-        }).catch(()=>{
-          setErrorMessage(`Information of ${newName} has already been removed from server`)
+        }).catch((error)=>{
+          setErrorMessage(`${JSON.stringify(error.response.data.error)}`)
           setTimeout(()=>{setErrorMessage(null)}, 5000)
         })
       }
@@ -48,6 +48,9 @@ const App = () => {
         setPersons([...persons, person])
         succeed = true
         successMessage = `Added ${newName}`
+      }).catch((error)=>{
+        setErrorMessage(`${JSON.stringify(error.response.data.error)}`)
+        setTimeout(()=>{setErrorMessage(null)}, 5000)
       })
     }
 
