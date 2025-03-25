@@ -109,6 +109,7 @@ const App = () => {
               blog={blog}
               increaseLike={increaseLike}
               removeBlog={removeBlog}
+              allowRemove={blog.user.username === user.username}
               />
             )}
           </div>
