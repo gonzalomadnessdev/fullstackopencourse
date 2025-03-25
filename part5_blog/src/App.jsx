@@ -61,6 +61,9 @@ const App = () => {
       const blog = await blogService.create({ title, url, author })
       setBlogs([...blogs, blog])
       sendSuccessNotification('Blog created!')
+      setAuthor('')
+      setTitle('')
+      setUrl('')
     } catch (exception) {
       sendErrorNotification(`${JSON.stringify(exception.response.data.error)}`)
     }
