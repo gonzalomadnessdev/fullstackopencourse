@@ -26,9 +26,10 @@ const App = () => {
   useEffect(() => {
     if (user !== null) {
       blogService.setToken(user.token)
-      blogService.getAll().then(blogs =>
+      blogService.getAll().then(blogs => {
+        blogs.sort((a,b) => {return (a.likes > b.likes) ? -1 : 1})
         setBlogs(blogs)
-      )
+      })
     }
   }, [user])
 
@@ -67,7 +68,6 @@ const App = () => {
     await blogService.update(blog.id, { likes : (blog.likes + 1)})
     setBlogs(blogs.map(b => { return (b.id === blog.id) ? {...b, likes: (b.likes + 1)} : b}))
   }
-
 
   return (
     <>
