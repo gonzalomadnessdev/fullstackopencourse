@@ -27,11 +27,13 @@ const App = () => {
     if (user !== null) {
       blogService.setToken(user.token)
       blogService.getAll().then(blogs => {
-        blogs.sort((a,b) => {return (a.likes > b.likes) ? -1 : 1})
+        sortBlogs(blogs)
         setBlogs(blogs)
       })
     }
   }, [user])
+
+  const sortBlogs = (blogs) => blogs.sort((a,b) => {return (a.likes > b.likes) ? -1 : 1})
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -69,6 +71,11 @@ const App = () => {
     setBlogs(blogs.map(b => { return (b.id === blog.id) ? {...b, likes: (b.likes + 1)} : b}))
   }
 
+  const removeBlog = async(blog) => {
+    await blogService.remove(blog.id)
+    setBlogs(blogs.reduce((acc, curr) => { if(curr.id !== blog.id) acc.push(curr); return acc; }, []))
+  }
+
   return (
     <>
       <h2>{(user === null) ? 'Log in to application' : 'blogs'}</h2>
@@ -96,7 +103,12 @@ const App = () => {
             </Togglable>
 
             {blogs.map(blog =>
-              <Blog key={blog.id} blog={blog} increaseLike={increaseLike}/>
+              <Blog
+              key={blog.id}
+              blog={blog}
+              increaseLike={increaseLike}
+              removeBlog={removeBlog}
+              />
             )}
           </div>
       }
