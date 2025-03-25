@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import CreateBlogForm from './components/CreateBlogForm'
@@ -13,11 +13,8 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
-  const [successMessage, setSuccessMessage] = useState(null)
-  const [errorMessage, setErrorMessage] = useState(null)
+
+  const notificationComponentRef = useRef(null)
 
   useEffect(() => {
     const loggedUser = authService.getLoggedUser()
@@ -41,14 +38,13 @@ const App = () => {
       const user = await loginService.login({
         username, password,
       })
-
       authService.setLoggedUser(user)
-
+      notificationComponentRef.current.success('welcome!')
       setUser(user)
       setUsername('')
       setPassword('')
     } catch (exception) {
-      sendErrorNotification(`${JSON.stringify(exception.response.data.error)}`)
+      notificationComponentRef.current.error(`${JSON.stringify(exception.response.data.error)}`)
     }
   }
 
@@ -57,75 +53,48 @@ const App = () => {
     setUser(null)
   }
 
-  const handleCreate = async (event) => {
-    event.preventDefault()
+  const creatBlog = async (blog) => {
     try {
-      const blog = await blogService.create({ title, url, author })
-      setBlogs([...blogs, blog])
-      sendSuccessNotification('Blog created!')
-      setAuthor('')
-      setTitle('')
-      setUrl('')
+      const newBlog = await blogService.create(blog)
+      setBlogs([...blogs, newBlog])
+      notificationComponentRef.current.success('Blog created!')
     } catch (exception) {
-      sendErrorNotification(`${JSON.stringify(exception.response.data.error)}`)
+      notificationComponentRef.current.error(`${JSON.stringify(exception.response.data.error)}`)
     }
   }
 
-  const sendSuccessNotification = (msj) => {
-    setSuccessMessage(msj)
-    setTimeout(()=>{setSuccessMessage(null)}, 1500)
-  }
-
-  const sendErrorNotification = (msj) => {
-    setErrorMessage(msj)
-    setTimeout(()=>{setErrorMessage(null)}, 1500)
-  }
-
   return (
-    (user === null) ? <>
-      <h2>Log in to application</h2>
-
-      <Notification message={successMessage} type={'success'}/>
-      <Notification message={errorMessage} type={'error'}/>
-
-      <LoginForm
-        handleLogin={handleLogin}
-        username={username}
-        password={password}
-        handleUsernameChange={({ target }) => setUsername(target.value)}
-        handlePasswordChange={({ target }) => setPassword(target.value)}
-      />
-    </>
-      :
-    <div>
-      <h2>blogs</h2>
-
-      <Notification message={successMessage} type={'success'}/>
-      <Notification message={errorMessage} type={'error'}/>
-
-      <p>{user.name} logged in<button onClick={handleLogout}>logout</button></p>
-
-
-      <Togglable buttonLabel={'new note'}>
-        <>
-          <h2>create new</h2>
-          <CreateBlogForm
-            handleCreate={handleCreate}
-            title={title}
-            author={author}
-            url={url}
-            handleAuthorChange={({ target }) => setAuthor(target.value)}
-            handleTitleChange={({ target }) => setTitle(target.value)}
-            handleUrlChange={({ target }) => setUrl(target.value)}
+    <>
+      <h2>{(user === null) ? 'Log in to application' : 'blogs'}</h2>
+      <Notification ref={notificationComponentRef} />
+      {
+        (user === null) ? <>
+          <LoginForm
+            handleLogin={handleLogin}
+            username={username}
+            password={password}
+            handleUsernameChange={({ target }) => setUsername(target.value)}
+            handlePasswordChange={({ target }) => setPassword(target.value)}
           />
         </>
-      </Togglable>
+          :
+          <div>
+            <p>{user.name} logged in<button onClick={handleLogout}>logout</button></p>
+            <Togglable buttonLabel={'new note'}>
+              <>
+                <h2>create new</h2>
+                <CreateBlogForm
+                  addBlog={creatBlog}
+                />
+              </>
+            </Togglable>
 
-
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
-    </div>
+            {blogs.map(blog =>
+              <Blog key={blog.id} blog={blog} />
+            )}
+          </div>
+      }
+    </>
   )
 }
 
