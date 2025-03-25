@@ -1,4 +1,4 @@
-const CreateBlogForm = ({ handleCreate, title, author, url , setTitle, setAuthor, setUrl }) => {
+const CreateBlogForm = ({ handleCreate, title, author, url , handleAuthorChange, handleTitleChange, handleUrlChange }) => {
   return (
     <form onSubmit={handleCreate}>
       <div>
@@ -7,7 +7,7 @@ const CreateBlogForm = ({ handleCreate, title, author, url , setTitle, setAuthor
           type="text"
           value={title}
           name="title"
-          onChange={({ target }) => setTitle(target.value)}
+          onChange={handleTitleChange}
         />
       </div>
       <div>
@@ -16,7 +16,7 @@ const CreateBlogForm = ({ handleCreate, title, author, url , setTitle, setAuthor
           type="text"
           value={author}
           name="author"
-          onChange={({ target }) => setAuthor(target.value)}
+          onChange={handleAuthorChange}
         />
       </div>
       <div>
@@ -25,7 +25,7 @@ const CreateBlogForm = ({ handleCreate, title, author, url , setTitle, setAuthor
           type="text"
           value={url}
           name="url"
-          onChange={({ target }) => setUrl(target.value)}
+          onChange={handleUrlChange}
         />
       </div>
       <button type="submit">create</button>
