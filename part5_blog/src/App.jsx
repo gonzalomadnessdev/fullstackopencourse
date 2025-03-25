@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import Notification from './components/Notification'
+import CreateBlogForm from './components/CreateBlogForm'
 import blogService from './services/blogs'
 import authService from './services/auth'
 import loginService from './services/login'
@@ -12,6 +14,8 @@ const App = () => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     const loggedUser = authService.getLoggedUser()
@@ -42,7 +46,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      // ...
+      sendErrorNotification(`${JSON.stringify(exception.response.data.error)}`)
     }
   }
 
@@ -56,14 +60,29 @@ const App = () => {
     try {
       const blog = await blogService.create({ title, url, author })
       setBlogs([...blogs, blog])
+      sendSuccessNotification('Blog created!')
     } catch (exception) {
-      // ...
+      sendErrorNotification(`${JSON.stringify(exception.response.data.error)}`)
     }
+  }
+
+  const sendSuccessNotification = (msj) => {
+    setSuccessMessage(msj)
+    setTimeout(()=>{setSuccessMessage(null)}, 1500)
+  }
+
+  const sendErrorNotification = (msj) => {
+    setErrorMessage(msj)
+    setTimeout(()=>{setErrorMessage(null)}, 1500)
   }
 
   return (
     (user === null) ? <>
       <h2>Log in to application</h2>
+
+      <Notification message={successMessage} type={'success'}/>
+      <Notification message={errorMessage} type={'error'}/>
+
       <form onSubmit={handleLogin}>
         <div>
           username
@@ -87,46 +106,30 @@ const App = () => {
       </form>
     </>
       :
-      <div>
-        <h2>blogs</h2>
-        <p>{user.name} logged in<button onClick={handleLogout}>logout</button></p>
+    <div>
+      <h2>blogs</h2>
 
-        <h2>create new</h2>
-        <form onSubmit={handleCreate}>
-          <div>
-            title
-            <input
-              type="text"
-              value={title}
-              name="title"
-              onChange={({ target }) => setTitle(target.value)}
-            />
-          </div>
-          <div>
-            author
-            <input
-              type="text"
-              value={author}
-              name="author"
-              onChange={({ target }) => setAuthor(target.value)}
-            />
-          </div>
-          <div>
-            url
-            <input
-              type="text"
-              value={url}
-              name="url"
-              onChange={({ target }) => setUrl(target.value)}
-            />
-          </div>
-          <button type="submit">create</button>
-        </form>
+      <Notification message={successMessage} type={'success'}/>
+      <Notification message={errorMessage} type={'error'}/>
 
-        {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
-        )}
-      </div>
+      <p>{user.name} logged in<button onClick={handleLogout}>logout</button></p>
+
+      <h2>create new</h2>
+
+      <CreateBlogForm
+        handleCreate={handleCreate}
+        title={title}
+        author={author}
+        url={url}
+        setAuthor={setAuthor}
+        setTitle={setTitle}
+        setUrl={setUrl}
+      />
+
+      {blogs.map(blog =>
+        <Blog key={blog.id} blog={blog} />
+      )}
+    </div>
   )
 }
 
