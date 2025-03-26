@@ -1,4 +1,4 @@
-const LOGGED_USER_KEY = "loggedUser"
+const LOGGED_USER_KEY = 'loggedUser'
 
 const getLoggedUser = () => {
   const loggedUserStr = localStorage.getItem(LOGGED_USER_KEY)

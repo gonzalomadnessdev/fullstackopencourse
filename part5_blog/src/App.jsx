@@ -29,6 +29,12 @@ const App = () => {
       blogService.getAll().then(blogs => {
         sortBlogs(blogs)
         setBlogs(blogs)
+      }).catch((exception) => {
+        notificationComponentRef.current.error(`${JSON.stringify(exception.response.data.error)}`)
+        if (exception.response.status === 401){
+          authService.removeLoggedUser()
+          setUser(null)
+        }
       })
     }
   }, [user])
@@ -63,18 +69,22 @@ const App = () => {
       notificationComponentRef.current.success('Blog created!')
     } catch (exception) {
       notificationComponentRef.current.error(`${JSON.stringify(exception.response.data.error)}`)
+      if (exception.response.status === 401){
+        authService.removeLoggedUser()
+        setUser(null)
+      }
     }
   }
 
   const increaseLike = async (blog) => {
-    await blogService.update(blog.id, { likes : (blog.likes + 1)})
-    setBlogs(blogs.map(b => { return (b.id === blog.id) ? {...b, likes: (b.likes + 1)} : b}))
+    await blogService.update(blog.id, { likes : (blog.likes + 1) })
+    setBlogs(blogs.map(b => { return (b.id === blog.id) ? { ...b, likes: (b.likes + 1) } : b}))
   }
 
   const removeBlog = async(blog) => {
-    if(!window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) return;
+    if(!window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) return
     await blogService.remove(blog.id)
-    setBlogs(blogs.reduce((acc, curr) => { if(curr.id !== blog.id) acc.push(curr); return acc; }, []))
+    setBlogs(blogs.reduce((acc, curr) => { if(curr.id !== blog.id) acc.push(curr); return acc }, []))
   }
 
   return (
@@ -105,11 +115,11 @@ const App = () => {
 
             {blogs.map(blog =>
               <Blog
-              key={blog.id}
-              blog={blog}
-              increaseLike={increaseLike}
-              removeBlog={removeBlog}
-              allowRemove={blog.user.username === user.username}
+                key={blog.id}
+                blog={blog}
+                increaseLike={increaseLike}
+                removeBlog={removeBlog}
+                allowRemove={blog.user.username === user.username}
               />
             )}
           </div>
