@@ -62,7 +62,7 @@ const App = () => {
     setUser(null)
   }
 
-  const creatBlog = async (blog) => {
+  const createBlog = async (blog) => {
     try {
       const newBlog = await blogService.create(blog)
       setBlogs([...blogs, newBlog])
@@ -108,7 +108,7 @@ const App = () => {
               <>
                 <h2>create new</h2>
                 <CreateBlogForm
-                  addBlog={creatBlog}
+                  addBlog={createBlog}
                 />
               </>
             </Togglable>

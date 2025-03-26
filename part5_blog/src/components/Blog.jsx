@@ -12,17 +12,15 @@ const Blog = ({ blog , increaseLike, removeBlog, allowRemove }) => {
   }
 
   return (
-    <div style={blogStyle}>
-      <div>
-        {blog.title}, {blog.author}
-        <button type="button" onClick={() => setShow(!show)}>{(show) ? 'hide': 'view'}</button>
-        {show && <>
-          <br /> likes: {blog.likes} <button type="button" onClick={() => increaseLike(blog)}>like</button>
-          <br /> {blog.url}
-          <br /> {blog.user.name}
-          {allowRemove && <><br /><button type="button" onClick={() => removeBlog(blog)}>remove</button></>}
-        </>}
-      </div>
+    <div style={blogStyle} className='blog'>
+      {blog.title}, {blog.author}
+      <button type="button" onClick={() => setShow(!show)} id="toggle">{(show) ? 'hide': 'view'}</button>
+      {show && <>
+        <br /> likes: {blog.likes} <button type="button" id="likes" onClick={() => increaseLike(blog)}>like</button>
+        <br /> {blog.url}
+        <br /> {blog.user.name}
+        {allowRemove && <><br /><button type="button" id="remove" onClick={() => removeBlog(blog)}>remove</button></>}
+      </>}
     </div>
   )
 }
