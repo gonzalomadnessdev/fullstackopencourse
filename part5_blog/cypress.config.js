@@ -42,6 +42,16 @@ export default defineConfig({
           }
         },
 
+        async createMany({ collectionName, list }) {
+          try {
+            const collection = mongoose.connection.collection(collectionName)
+            const results = await collection.insertMany(list)
+            return results// Return the inserted document ID
+          } catch (error) {
+            return `Error inserting documents: ${error.message}`
+          }
+        },
+
         async disconnectMongo() {
           try {
             await mongoose.disconnect()

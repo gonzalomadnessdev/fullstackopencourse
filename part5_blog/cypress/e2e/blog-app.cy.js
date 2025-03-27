@@ -1,3 +1,4 @@
+let userId
 describe('Blog app', async function () {
 
   beforeEach(async function () {
@@ -5,7 +6,7 @@ describe('Blog app', async function () {
     await cy.task('clearCollection', 'users')
     await cy.task('clearCollection', 'blogs')
 
-    await cy.task('createDocument', {
+    userId = await cy.task('createDocument', {
       collectionName: 'users',
       data: {
         "username": "e2etest",
@@ -115,8 +116,40 @@ describe('Blog app', async function () {
     })
   })
 
+  it('blogs must be ordered by likes', function () {
+    cy.task('createMany', {
+      collectionName: 'blogs',
+      list: [
+        {
+          "title": "Must be third",
+          "author": "Megadeth",
+          "url": "https://www.youtube.com/watch?v=rUGIocJK9Tc",
+          "likes": 0,
+          "user": userId
+        },
+        {
+          "title": "Must be first",
+          "author": "Megadeth",
+          "url": "https://www.youtube.com/watch?v=rUGIocJK9Tc",
+          "likes": 10,
+          "user": userId
+        },
+        {
+          "title": "Must be second",
+          "author": "Megadeth",
+          "url": "https://www.youtube.com/watch?v=rUGIocJK9Tc",
+          "likes": 4,
+          "user": userId
+        },
+      ]
+    }).then(()=>{
+      cy.get('#username').type('e2etest'); // Fill email input
+      cy.get('#password').type('123456*'); // Fill password input
+      cy.get('button[type="submit"]').click(); // Click submit button
 
-
-
-
+      cy.get('.blog').eq(0).should('contain', 'Must be first')
+      cy.get('.blog').eq(1).should('contain', 'Must be second')
+      cy.get('.blog').eq(2).should('contain', 'Must be third')
+    })
+  })
 })
