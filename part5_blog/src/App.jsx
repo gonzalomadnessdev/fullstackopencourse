@@ -103,7 +103,7 @@ const App = () => {
         </>
           :
           <div>
-            <p>{user.name} logged in<button onClick={handleLogout}>logout</button></p>
+            <p>{user.name} logged in<button onClick={handleLogout} id="logout">logout</button></p>
             <Togglable buttonLabel={'new note'}>
               <>
                 <h2>create new</h2>
